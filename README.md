@@ -45,6 +45,9 @@ Inputs:
 Outputs :
 * out_file : GDS file matching the name of the input vds with ".gds" appeneded to the end
 
+### uniqueVariantIDs.R
+This makes sure every varinat has a unique variant ID, which helps PLINK not throw a fit.
+
 
 ## Limitations
 The U of W version of this pipeline can accept BCF files as valid input. Currently this pipeline does not use bcftools and therefore cannot handle bcf files.
