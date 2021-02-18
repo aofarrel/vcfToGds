@@ -1,3 +1,5 @@
+# Adapted from TOPMed analysis pipeline
+
 library(SeqArray)
 sessionInfo()
 
