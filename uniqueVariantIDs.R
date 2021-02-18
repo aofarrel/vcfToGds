@@ -15,9 +15,9 @@ if (chr_kind == 1) {
 }
 
 ## gds file has two parts split by chromosome identifier
-gdsfile <- unname(config["gds_file"])
+#gdsfile <- unname(config["gds_file"])
 chr <- strsplit(chrtype, " ", fixed=TRUE)[[1]]
-gds.files <- sapply(chr, function(c) insertChromString(gdsfile, c, "gds_file"))
+gds.files <- sapply(chr, function(c) insertChromString(gds_file, c, "gds_file"))
 gds.list <- lapply(gds.files, seqOpen, readonly=FALSE)
 
 ## exit gracefully if we only have one file
