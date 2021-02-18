@@ -11,13 +11,11 @@ task runGds {
 		set -eux -o pipefail
 
 		echo "Calling R script"
-		<&2 echo $(ls)
-
 		R --vanilla --args ~{vcf} < /vcfToGds/vcfToGds.R
 	}
 
 	runtime {
-		docker: "manninglab/vcftogds:latest"
+		docker: "quay.io/aofarrel/vcf2gds:circleci-push"
 		disks: "local-disk ${disk} SSD"
 		bootDiskSizeGb: 6
 		memory: "${memory} GB"
@@ -38,14 +36,11 @@ task runUniqueVarIDs {
 		set -eux -o pipefail
 
 		echo "Calling R script"
-		<&2 echo $(ls)
-		<&2 echo $(tree)
-
-		R --vanilla --args ~{gds} < /vcfToGds/uniqueVariantIDs.R
+		R --vanilla --args ~{gds} 0 < /vcfToGds/uniqueVariantIDs.R
 	}
 
 	runtime {
-		docker: "manninglab/vcftogds:latest"
+		docker: "quay.io/aofarrel/vcf2gds:circleci-push"
 	}
 
 	output {
