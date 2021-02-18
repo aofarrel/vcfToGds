@@ -11,6 +11,7 @@ task runGds {
 		set -eux -o pipefail
 
 		echo "Calling R script"
+		<&2 echo $(ls)
 
 		R --vanilla --args ~{vcf} < /vcfToGds/vcfToGds.R
 	}
@@ -23,7 +24,32 @@ task runGds {
 	}
 
 	output {
-		Array[File] out_file = glob("*.gds")
+		# there should be a way to avoid using globs...
+		Array[File] out_raw_gds = glob("*.gds")
+	}
+}
+
+task runUniqueVarIDs {
+	input {
+		File gds
+	}
+
+	command {
+		set -eux -o pipefail
+
+		echo "Calling R script"
+		<&2 echo $(ls)
+		<&2 echo $(tree)
+
+		R --vanilla --args ~{gds} < /vcfToGds/uniqueVariantIDs.R
+	}
+
+	runtime {
+		docker: "manninglab/vcftogds:latest"
+	}
+
+	output {
+		Array[File] out_gds_unique = glob("*.gds")
 	}
 }
 
@@ -40,6 +66,12 @@ workflow vcfToGds_wf {
 				vcf = vcf_file,
 				disk = this_disk,
 				memory = this_memory
+		}
+		scatter(one_gds in runGds.out_raw_gds) { # crappy workaround to runGds outputting a blob
+			call runUniqueVarIDs {
+				input:
+					gds = one_gds
+			}
 		}
 	}
 
