@@ -39,3 +39,4 @@ vignettes/*.pdf
 cromwell-input/*
 Cromwell.stdout.txt
 Cromwell.stderr.txt
+test_inputs/1KG_phase3_subset_chr21.vcf.gz
