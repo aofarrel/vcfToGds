@@ -5,6 +5,7 @@ task runGds {
 		File vcf
 		Int disk
 		Float memory
+		String output_file_name = basename(sub(vcf, "\\.vcf.gz$", ".gds"))
 	}
 	
 	command {
@@ -16,14 +17,14 @@ task runGds {
 	}
 
 	runtime {
-		docker: "manninglab/vcftogds:latest"
+		docker: "quay.io/aofarrel/vcf2gds:circleci-push"
 		disks: "local-disk ${disk} SSD"
 		bootDiskSizeGb: 6
 		memory: "${memory} GB"
 	}
 
 	output {
-		Array[File] out_file = glob("*.gds")
+		File out = output_file_name
 	}
 }
 
