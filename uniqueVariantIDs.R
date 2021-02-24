@@ -63,10 +63,10 @@ gds.list <- lapply(gds.files, seqOpen, readonly=FALSE)
 ######################## debug zone ########################
 ## exit gracefully if we only have one file
 ## this might be a bad idea; 1000 genomes files can throw issues with plink
-#if (length(gds.list) == 1) {
-    #message("Only one GDS file; no changes needed. Exiting gracefully.")
-    #q(save="no", status=0)
-#}
+if (length(gds.list) == 1) {
+    message("Only one GDS file; no changes needed. Exiting gracefully.")
+    q(save="no", status=0)
+}
 
 # due to how scattering in WDL works, the above will always
 # exit gracefully if left uncommented. later on in we use

@@ -100,10 +100,9 @@ task runcheckGds {
 
 task everything {
 	input {
-		File vcf
+		Array[File] vcfs
 		File DEBUGscript2
 		File DEBUGscript3
-		String output_file_name = basename(sub(vcf, "\\.vcf.gz$", ".gds"))
 	}
 
 	command <<<
@@ -112,19 +111,13 @@ task everything {
 		#######################################
 		# Step 1: Convert to GDS
 		#######################################
-		R --vanilla --args ~{vcf} < /vcfToGds/vcfToGds.R
+		for i in ~{sep="', '" vcfs}
+		do
+			R --vanilla --args $i < /vcfToGds/vcfToGds.R
+			OUT=$(basename sub($i, "\\.vcf.gz$", ".gds"))
+		done
 
 
-		#######################################
-		# Step 2: Unique IDs
-		#######################################
-		#R --vanilla --args ~{output_file_name} 0 < ~{DEBUGscript2}
-
-		#######################################
-		# Step 3: Check VCF and GDS
-		#######################################
-
-		R --vanilla --args ~{output_file_name} ~{vcf} < ~{DEBUGscript3}
 
 	>>>
 
@@ -142,13 +135,11 @@ workflow vcfToGds_wf {
 		File DEBUGscript3
 	}
 
-	scatter(vcf_file in vcf_files) {
-		call everything {
-			input:
-				vcf = vcf_file,
-				DEBUGscript2 = DEBUGscript2,
-				DEBUGscript3 = DEBUGscript3
-		}
+	call everything {
+		input:
+			vcfs = vcf_files,
+			DEBUGscript2 = DEBUGscript2,
+			DEBUGscript3 = DEBUGscript3
 	}
 
 	scatter(vcf_file in vcf_files) {
