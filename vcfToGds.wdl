@@ -99,12 +99,9 @@ task runSubsetGds {
 	command {
 		set -eux -o pipefail
 
-		WOW=$(echo $RANDOM)
-		COOL=$("$WOW~{output_name}")
-
 		echo "Calling R script runSubsetGds.R"
 
-		R --vanilla --args ~{gds} $(COOL) < ~{debugScript}
+		R --vanilla --args ~{gds} ~{output_name} < ~{debugScript}
 	}
 
 	runtime {
@@ -128,6 +125,8 @@ task runMergeGds {
 
 	command {
 		set -eux -o pipefail
+
+		bcftools
 
 		echo "Calling R script runMergeGds.R"
 

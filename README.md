@@ -36,9 +36,8 @@ GDS file matching the name of the input vds with ".gds" appeneded to the end.
 
 ## LD Prune
 This stage automatically takes in the GDS output of the previous step.
-1. ld_pruning.R, based on UoW ld_pruning.R
-2. subset_gds.R, based on UoW subset_gds.R
-3. merge_gds.R
+1. ld_pruning.R, based on [UoW ld_pruning.R](https://github.com/UW-GAC/analysis_pipeline/blob/master/R/ld_pruning.R)
+2. subset_gds.R, based on [UoW subset_gds.R](https://github.com/UW-GAC/analysis_pipeline/blob/master/R/subset_gds.R)
 
 ### Required Inputs
 * ldprune_disk : *int* of disk space to allot for vcfToGds.R
