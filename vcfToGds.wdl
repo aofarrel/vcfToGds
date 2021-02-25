@@ -126,8 +126,6 @@ task runMergeGds {
 	command {
 		set -eux -o pipefail
 
-		bcftools
-
 		echo "Calling R script runMergeGds.R"
 
 		R --vanilla --args ~{sep="," gds_array} ~{merged_name} < ~{debugScript}
