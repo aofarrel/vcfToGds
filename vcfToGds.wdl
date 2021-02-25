@@ -1,5 +1,10 @@
 version 1.0
 
+# Cromwell has a bug where it cannot properly recognize certain comments as, well, comments
+# Lines marked with "##goto X" are how I have to keep track of the location of certain
+# commented-out things; basically putting the problematic comment in a place Cromwell does
+# not parse.
+
 task runGds {
 	input {
 		File vcf
@@ -30,10 +35,14 @@ task runGds {
 
 task runLdPrune{
 	input {
+
+		# Array version
+		##goto A
+
+		# File version
 		File gds
 
 		# ld prune stuff
-		# defaults set in workflow stage
 		Boolean autosome_only
 		Boolean exclude_pca_corr
 		String genome_build
@@ -55,7 +64,11 @@ task runLdPrune{
 
 		echo "Calling R script ld_pruning.R"
 
+		# File version
 		R --vanilla --args ~{gds} ~{autosome_only} ~{exclude_pca_corr} ~{genome_build} ~{ld_r_threshold} ~{ld_win_size} ~{maf_threshold} ~{missing_threshold} < ~{debugScript}
+
+		# Array version
+		##goto B
 	}
 
 	runtime {
@@ -69,6 +82,65 @@ task runLdPrune{
 		File out = "pruned_variants.RData"
 	}
 
+}
+##goto A
+		#File gds
+##goto B
+		#R --vanilla --args ~{sep="," gds} ~{autosome_only} ~{exclude_pca_corr} ~{genome_build} ~{ld_r_threshold} ~{ld_win_size} ~{maf_threshold} ~{missing_threshold} < ~{debugScript}
+
+task runSubsetGds {
+	input {
+		File gds
+		String output_name
+
+		# R script
+		File debugScript
+	}
+	command {
+		set -eux -o pipefail
+
+		WOW=$(echo $RANDOM)
+		COOL=$("$WOW~{output_name}")
+
+		echo "Calling R script runSubsetGds.R"
+
+		R --vanilla --args ~{gds} $(COOL) < ~{debugScript}
+	}
+
+	runtime {
+		docker: "quay.io/aofarrel/vcf2gds:circleci-push"
+	}
+
+	output {
+		File out = "subsetted.gds"
+	}
+
+}
+
+task runMergeGds {
+	input {
+		Array[File] gds_array
+		String merged_name
+
+		# R script, will eventually be hardcoded
+		File debugScript
+	}
+
+	command {
+		set -eux -o pipefail
+
+		echo "Calling R script runMergeGds.R"
+
+		R --vanilla --args ~{sep="," gds_array} ~{merged_name} < ~{debugScript}
+	}
+
+	runtime {
+		docker: "quay.io/aofarrel/vcf2gds:circleci-push"
+	}
+
+	output {
+		File out = "merged.gds"
+	}
 }
 
 workflow vcfToGds_wf {
@@ -92,6 +164,8 @@ workflow vcfToGds_wf {
 		# R scripts -- will eventually be hardcoded in the Docker container
 		# Inputting them like this makes testing a bazillion times faster
 		File debugLDprunescript1
+		File debugLDprunescript2
+		File debugLDprunescript3
 	}
 
 	scatter(vcf_file in vcf_files) {
@@ -103,10 +177,11 @@ workflow vcfToGds_wf {
 		}
 	}
 
-	scatter(gds_file in runGds.out) {
+	scatter(gds_file in runGds.out) { # Comment out for array version
 		call runLdPrune {
 			input:
-				gds = gds_file,
+				gds = gds_file, # File version
+				#gds = runGds.out, # Array version
 				disk = ldprune_disk,
 				memory = ldprune_memory,
 				autosome_only = select_first([ldprune_autosome_only, false]),
@@ -118,6 +193,21 @@ workflow vcfToGds_wf {
 				missing_threshold = select_first([ldprune_missing_threshold, 0.01]),
 				debugScript = debugLDprunescript1
 		}
+	}
+	scatter(gds_file in runGds.out) {
+		call runSubsetGds {
+			input:
+				gds = gds_file,
+				output_name = "subsetted.gds",
+				debugScript = debugLDprunescript2
+		}
+
+	}
+	call runMergeGds {
+		input:
+			gds_array = runSubsetGds.out,
+			merged_name = "merged.gds",
+			debugScript = debugLDprunescript3
 	}
 
 	meta {

@@ -24,7 +24,7 @@ It is based on the University of Washington pipeline which has its own edit and 
 All workflow inputs go into one JSON file. With that being said, because this is a big pipeline, this README breaks them down in catagory per R script they apply to.
 
 ## VCF to GDS Conversion
-This script is the main function for converting vcf to gds. It uses the [SeqArray](https://www.bioconductor.org/packages/release/bioc/html/SeqArray.html) package in R.
+This script is the main function for converting vcf to gds. It uses the [SeqArray](https://www.bioconductor.org/packages/release/bioc/html/SeqArray.html) package in R. Currently, it only runs vcfToGds.R, but implementing other R scripts present in the U of W pipeline is being tested on another branch.
 
 ### Required Inputs
 * vcf : an *array of vcf files* in vcf, .vcf.bgz, or .vcf.gz format
@@ -36,6 +36,9 @@ GDS file matching the name of the input vds with ".gds" appeneded to the end.
 
 ## LD Prune
 This stage automatically takes in the GDS output of the previous step.
+1. ld_pruning.R, based on UoW ld_pruning.R
+2. subset_gds.R, based on UoW subset_gds.R
+3. merge_gds.R
 
 ### Required Inputs
 * ldprune_disk : *int* of disk space to allot for vcfToGds.R
