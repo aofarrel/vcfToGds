@@ -1,3 +1,7 @@
+# This project started as a fork of manning-lab/vcfToGds and contained a copy of
+# this file by Tim Majarian.
+# Tim's copy is here: https://github.com/manning-lab/vcfToGds/blob/master/vcfToGds.R
+
 # Adapted from:
 # 	Author: topmed analysis pipeline, smgogarten
 # 	Link: https://github.com/smgogarten/analysis_pipeline/blob/master/R/vcf2gds.R
